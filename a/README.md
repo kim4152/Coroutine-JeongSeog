@@ -1,79 +1,96 @@
 # 스레드 기반 작업의 한계와 코루틴의 등장
 
+## 1. 단일 스레드 사용
 
-## 1. 단일 스레드 사용 
-스레드는 하나의 작업을 수행할 때 다른 작업을 동시에 수행하지 못한다.  
+단일 스레드는 하나의 작업을 수행할 때 다른 작업을 동시에 수행하지 못한다.  
 오래걸리는 작업이 있을 때 문제가 생김.
 
-##  2. 멀티 스레드 사용 - Thread 클래스
-#### 장점  
+## 2. 멀티 스레드 사용 - Thread 클래스
+
+#### 장점
+
 병렬 처리 가능  
 병렬 처리 : 독립적으로 분할된 작업을 서로 다른 스레드로 할당해 처리
 
 #### 한계
+
 1. 매 번 생성해줘야함
 2. 스레드 생성과 관리에 대한 책임이 개발자에게 있다.
-   - 프로그램의 복잡성이 증가한다.
-   - 실수로 인해 오류나 메모리 누수를 발생시킬 가능성이 증가한다.  
+    - 프로그램의 복잡성이 증가한다.
+    - 실수로 인해 오류나 메모리 누수를 발생시킬 가능성이 증가한다.
 
-#### 해결 
+#### 해결
+
 1. 스레드의 관리를 시스템에서 책임지게 하기
 2. 한 번 생성한 스레드를 간편하게 재사용
 
-
 ## 3. 멀티 스레드 사용 - Executor 프레임워크
+
 스레드풀(스레드 집합) 사용.  
 스레드풀을 미리 생성해 놓고 작업을 요청 받으면 쉬고 있는 스레드에 작업을 분배.  
 이 때, 각 스레드가 작업을 끝내더라고 스레드를 종료하지 않고 재사용
 
-#### 한계  
+#### 한계
+
 스레드 블록킹
 ; 스레드가 아무것도 하지 못하고 사용될 수 없는 상태에 있는 것
 
 스레드 블록킹 원인
+
 1. 여러 스레드가 동기화 블록에 동시에 접근하는 경우 하나의 스레드만 동기화 블록에 접근이 가능한 경우
 2. 뮤텍스나 세마포어로 인해 공유되는 자원에 접근할 수 있는 스레드가 제한되는 경우
 
 #### 해결
+
 코루틴 등장
 
 ## 코루틴
+
 #### 장점
-1. 필요할 때 스레드 사용 권한을 양보하고 일시 중단하여 다른 작업이 스레드를 사용할 수 있게 한다.   
-2. 일시 중단 후 재개된 코루틴은 재개 시점에 사용할 수 있는 스레드에 할당돼 실행한다.  
+
+1. 필요할 때 스레드 사용 권한을 양보하고 일시 중단하여 다른 작업이 스레드를 사용할 수 있게 한다.
+2. 일시 중단 후 재개된 코루틴은 재개 시점에 사용할 수 있는 스레드에 할당돼 실행한다.
 3. 코루틴은 스레드와 비교해 생성과 전환 비용이 적게 들고 스레드 자유롭게 뗐다 붙였다 할 수 있어 경량 스레드라고 불린다.
 
 ### 코루틴이 스레드에 비해 생성과 전환 비용이 적게 드는 이유?
+
 [참고 블로그](https://charlezz.com/?p=44634)
+
 #### 1. 스레드
+
 스레드의 스케줄링은 운영체제가 수행하며, 문맥 교환을 위해 커널 모드로 전환하는데, 이 관정에서 많은 오버해드가 발생한다.
 
-
 #### 2. 코루틴
+
 코루틴은 사용자 수준에서 스케줄링된다. 코루틴의 실행과 일시 중단은 일반 함수 호출과 비슷한 방식으로 처리되며, 운영체제와 상호 작용이 없다.
 
 ---
+
 스케줄링 : 컴퓨터의 CPU와 같은 자원을 여러 작업(프로세스나 스레드)에 어떻게 할당할지 결정하는 과정  
-커널모드 : 운영체제가 시스템 자원을 직접 제어하기 위해 사용하는 특권 모드   
+커널모드 : 운영체제가 시스템 자원을 직접 제어하기 위해 사용하는 특권 모드
+
 ---
+
+### 스레드 코루틴 비교
 
 ```kotlin
 // 스레드
 runBlocking {
-        println("시작::활성화 된 스레드 갯수 = ${Thread.activeCount()}")
-        val time = measureTimeMillis {
-            val jobs = ArrayList<Thread>()
-            repeat(1000) {
-                jobs += Thread {
-                    Thread.sleep(1000L)
-                }.also { it.start() }
-            }
-            println("끝::활성화 된 스레드 갯수 = ${Thread.activeCount()}")
-            jobs.forEach { it.join() }
+    println("시작::활성화 된 스레드 갯수 = ${Thread.activeCount()}")
+    val time = measureTimeMillis {
+        val jobs = ArrayList<Thread>()
+        repeat(1000) {
+            jobs += Thread {
+                Thread.sleep(1000L)
+            }.also { it.start() }
         }
-        println("Took $time ms")
+        println("끝::활성화 된 스레드 갯수 = ${Thread.activeCount()}")
+        jobs.forEach { it.join() }
     }
+    println("Took $time ms")
+}
 ```
+
 ```kotlin
 시작::활성화 된 스레드 갯수 = 15
 끝::활성화 된 스레드 갯수 = 1015
@@ -85,20 +102,21 @@ Took 1036 ms
 ```kotlin
 // 코루틴
 runBlocking {
-        println("시작::활성화 된 스레드 갯수 = ${Thread.activeCount()}")
-        val time = measureTimeMillis {
-            val jobs = ArrayList<Job>()
-            repeat(10000) {
-                jobs += launch(Dispatchers.Default) {
-                    delay(1000L)
-                }
+    println("시작::활성화 된 스레드 갯수 = ${Thread.activeCount()}")
+    val time = measureTimeMillis {
+        val jobs = ArrayList<Job>()
+        repeat(10000) {
+            jobs += launch(Dispatchers.Default) {
+                delay(1000L)
             }
-            println("끝::활성화 된 스레드 갯수 = ${Thread.activeCount()}")
-            jobs.forEach { it.join() }
         }
-        println("Took $time ms")
+        println("끝::활성화 된 스레드 갯수 = ${Thread.activeCount()}")
+        jobs.forEach { it.join() }
     }
+    println("Took $time ms")
+}
 ```
+
 ```kotlin
 시작::활성화 된 스레드 갯수 = 2
 끝::활성화 된 스레드 갯수 = 15
