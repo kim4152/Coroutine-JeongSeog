@@ -111,5 +111,98 @@ val job = scope.launch { }
 val job = Job()
 ```
 
+## Job의 부모를 명시적으로 설정하기
 
- 
+```kotlin
+public fun Job(parent: Job? = null): CompletableJob = JobImpl(parent)
+```
+
+`Job()` 을 통해 객체를 생성할 경우 parent 프로퍼티가 null이 돼 부모가 없는 루트 Job이 생성된다.
+
+아래 방식대로 코드를 만들면 구조화가 끊어진다.
+
+```kotlin
+val newJob = Job()
+println("coroutine1")
+launch(CoroutineName("Coroutine2") + newJob) {
+    delay(10)
+    println("coroutine2")
+}
+```
+
+```kotlin
+// 출력
+coroutine1
+```
+
+구조화를 꺠지 않도록 Job() 인자로 부모 코루틴의 Job 객체를 넘기면 된다.
+
+```kotlin
+val newJob = Job(coroutineContext[Job])
+println("coroutine1")
+launch(CoroutineName("Coroutine2") + newJob) {
+    delay(10)
+    println("coroutine2")
+}
+```
+
+```kotlin
+// 출력
+coroutine1
+coroutine2
+```
+
+## Job은 자동으로 실행 완료되지 않는다
+
+Job 생성 함수로 생성된 객체는 자식 코루틴이 모두 실행 완료되더라도 자동으로 실행 완료되지 않는다.  
+명시적으로 complete를 호출 해줘야한다.
+
+```kotlin
+val newJob = Job(coroutineContext[Job])
+launch(CoroutineName("Coroutine2") + newJob) { ... }
+newJob.complete() // 명시적 호출
+```
+
+## runBlocking과 launch 차이
+
+- runBlocking : 호출부의 스레드를 차단
+- launch : 차단 X
+
+하위 runBlocking이 실행될 동안 호출부 스레드를 차단하기 때문에 1->2 순서가 된다.  
+다만, 이는 스레드 블로킹과는 다르다. 스레드 블로킹은 스레드가 어떤 작업에도 사용할 수 없도록 차단되는 것을 의미하고,
+runBlocking 함수의 차단은 다른 작업이 스레드를 사용할 수 없음을 의미한다.
+
+```kotlin
+runBlocking {
+    runBlocking {
+        delay(10)
+        println("1")
+    }
+    println("2")
+}
+```
+
+```kotlin
+// runBlocking 결과
+1
+2
+```
+
+반면 launch는 호출부의 스레드를 차단하지 않기 때문에 2->1 순서로 출력이 된다
+
+```kotlin
+// launch
+runBlocking {
+    launch {
+        delay(10)
+        println("1")
+    }
+    println("2")
+}
+```
+
+```kotlin
+// launch일 때 결과
+2
+1
+```

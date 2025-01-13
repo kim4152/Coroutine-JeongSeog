@@ -62,6 +62,24 @@ fun f() = runBlocking {
     println(a.parent == b.parent)
 }
 
+fun g() = runBlocking {
+    runBlocking {
+        delay(10)
+        println("1")
+    }
+    println("2")
+}
+
+fun h() = runBlocking {
+    val newJob = Job(coroutineContext[Job])
+    println("coroutine1")
+    launch(CoroutineName("Coroutine2") + newJob) {
+        delay(10)
+        println("coroutine2")
+    }
+    newJob.complete()
+}
+
 fun main() {
-    f()
+    g()
 }
