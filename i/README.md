@@ -18,7 +18,7 @@ suspend fun delayAndPrint() {
 }
 ```
 
-### 일시 중단 함수를 코루틴처럼 사용하고 싶다면코루틴 빌더로 감싸야한다
+### 일시 중단 함수를 코루틴처럼 사용하고 싶다면 코루틴 빌더로 감싸야한다
 
 ```kotlin
 fun main() = runBlocking {
@@ -67,6 +67,7 @@ suspend fun search() = supervisorScope {
 }
 ```
 
-위 코드를 구조화 하면
-//todo 315
+위 코드를 구조화 하면  
+
+<img width="372" alt="스크린샷 2025-01-14 오후 2 14 28" src="https://github.com/user-attachments/assets/1ee83d4c-7bd8-4680-a52a-d6e1b9529b92" />
 
