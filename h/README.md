@@ -1,7 +1,7 @@
 # 예외 처리
 
 코루틴 실행 중 예외가 발생하면 해당 코루틴은 취소되고 부모 코루틴으로 예외가 전파된다.  
-만약 부모 코루틴에서 적절히 처리되지 않으면 다시 부모 코루틴으로 루트 코루틴까지 가게 된다.
+만약 부모 코루틴에서 적절히 처리되지 않으면 루트 코루틴까지 가게 된다.
 
 코루틴이 예외를 전파받아 취소되면 해당 코루틴만 취소되는 것이 아니라 하위에 있는 모든 코루틴에게 취소가 전파된다.
 
@@ -56,7 +56,7 @@ runBlocking {
 val supervisorJob = SupervisorJob(this.coroutineContext[Job])
 ```
 
-또한 마지막에 complete() 함수를 명시적으로 호출해줘야 한다.
+또한 Job 객체와 마친가지 마지막에 complete() 함수를 명시적으로 호출해줘야 한다.
 
 ### SupervisorJob을 CoroutineScope와 함께 사용하기
 
@@ -91,8 +91,8 @@ Exception in thread "DefaultDispatcher-worker-1" java . lang . Exception : excep
 
 ### SupervisorJob 사용시 주의 할 점
 
-코루틴 빌더 함수의 context 인자에 SupurvisorJob()을 넘기고,   
-코루틴 빌더 함수가 호출돼 생성되는 코루틴의 하위 자식 코루틴들을 생성하는 것을 조심해야한다.
+코루틴 빌더 함수의 context 인자에 SupurvisorJob()을 넘기고 코루틴 빌더 함수가 호출되어 생성되는,   
+코루틴의 자식 코루틴들을 생성하는 것을 조심해야한다.
 
 ```kotlin
 runBlocking {
@@ -119,8 +119,8 @@ context 인자에 Job 객체가 입력될 경우 해당 Job 객체를 부모로 
 
 아래와 같은 구조가 된다.
 
-//todo : 구조 274
-
+//todo : 구조 274  
+만약 이 상태에서 Coroutine3에서 예외가 발생하면 Parent에 예외가 도착하고, Coroutine2까지 예외가 전파된다.  
 SupervisorJob은 강력한 예외 전파 방지 도구이지만 Job 계층 구조의 어떤 위치에 있어야 하는지 충분히 고민하고 사용해야한다.
 
 ### 3. SuperVisorScope를 사용한 예외 전파 제한
@@ -136,7 +136,7 @@ public suspend fun <R> supervisorScope(block: suspend CoroutineScope.() -> R): R
 
 ### CoroutineExceptionHandler
 
-람다식에 예외가 발생했을 때 어떤 종작을 할지 입력해 예외를 처리할 수 있다.
+람다식에 예외가 발생했을 때 어떤 작을 할지 입력해 예외를 처리할 수 있다.
 
 ```kotlin
 public inline fun CoroutineExceptionHandler(crossinline handler: (CoroutineContext, Throwable) -> Unit): CoroutineExceptionHandler
