@@ -1,17 +1,13 @@
 package i
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.supervisorScope
 
 fun main(): Unit = runBlocking {
     search()
 }
 
 suspend fun search() = supervisorScope {
-    launch {
-        searchFromDB()
-    }
-    launch {
-        searchFromServer()
-    }
+
 }
 

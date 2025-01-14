@@ -1,5 +1,6 @@
 package h
 
+import b.name
 import kotlinx.coroutines.*
 
 fun a() = runBlocking {
@@ -97,6 +98,33 @@ fun f() = runBlocking {
 //    }
 }
 
+fun h() = runBlocking {
+    name()
+    delay(100)
+    launch {
+        name()
+    }
+    delay(100)
+    CoroutineScope(Dispatchers.IO).launch {
+        name()
+
+    }
+    delay(100)
+    launch(Dispatchers.Default) {
+        name()
+    }
+}
+
+fun i() = runBlocking {
+    val job = launch {
+        println("1")
+        delay(100)
+        println("2")
+    }
+    job.join()
+    println("3")
+}
+
 fun main() {
-    f()
+    i()
 }
