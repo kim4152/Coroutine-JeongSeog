@@ -125,6 +125,13 @@ fun i() = runBlocking {
     println("3")
 }
 
+fun j() = runBlocking {
+    launch(start = CoroutineStart.ATOMIC) {
+        throw CancellationException("")
+        println("11")
+    }.cancel()
+}
+
 fun main() {
-    i()
+    j()
 }
