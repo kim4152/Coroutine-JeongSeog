@@ -119,7 +119,8 @@ context 인자에 Job 객체가 입력될 경우 해당 Job 객체를 부모로 
 
 아래와 같은 구조가 된다.
 
-//todo : 구조 274  
+<img width="351" alt="스크린샷 2025-01-14 오전 11 16 36" src="https://github.com/user-attachments/assets/21c4179e-9c27-451b-a2c2-8b61918bbc85" />
+
 만약 이 상태에서 Coroutine3에서 예외가 발생하면 Parent에 예외가 도착하고, Coroutine2까지 예외가 전파된다.  
 SupervisorJob은 강력한 예외 전파 방지 도구이지만 Job 계층 구조의 어떤 위치에 있어야 하는지 충분히 고민하고 사용해야한다.
 
