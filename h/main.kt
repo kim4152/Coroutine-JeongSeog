@@ -132,6 +132,43 @@ fun j() = runBlocking {
     }.cancel()
 }
 
+
+fun k() = runBlocking {
+    println("1")
+    launch {
+        println("3")
+        l()
+    }
+    println("2")
+}
+
+suspend fun l() = supervisorScope {
+    val exceptionHandler = CoroutineExceptionHandler { _, _ ->
+        println("error")
+    }
+    launch { println("4") }
+    launch(exceptionHandler) { throw Exception("Exception") }
+    delay(1)
+    println("5")
+}
+
+
+fun m() = runBlocking {
+    val scope = CoroutineScope(Dispatchers.IO)
+    scope.launch {
+        println("@@@@@@@@@@@@@@@@@@@@@")
+        repeat(100) {
+            //println("${name()}")
+        }
+    }
+    scope.launch {
+        println("##############")
+    }
+    repeat(100) {
+    }
+}
+
+
 fun main() {
-    j()
+    m()
 }
