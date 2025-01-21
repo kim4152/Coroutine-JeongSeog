@@ -20,9 +20,27 @@ fun c() = runBlocking {
     println("${job.await()}")
 }
 
+fun d() = runBlocking {
+    name()
+    withContext(Dispatchers.Default) {
+        name()
+    }
+}
+
+fun e() = runBlocking() {
+    name()
+    val job = launch(
+        context = Dispatchers.IO,
+        start = CoroutineStart.UNDISPATCHED
+    ) {
+        name()
+        delay(10)
+        name()
+    }
+}
 
 fun main(): Unit = runBlocking {
-    c()
+    e()
 }
 
 fun name() {
